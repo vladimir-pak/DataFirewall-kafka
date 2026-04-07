@@ -11,11 +11,15 @@
 #       TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384,
 #       TLS_DHE_RSA_WITH_AES_256_CBC_SHA256
 
+app:
+  kafka:
+    topic: user-actions
+
 spring:
   application:
-    name: app-name
+    name: datafirewall-kafka
     version: ${APP_VERSION:0.0.1}
-    projectName: example
+    projectName: datafirewall
 
   datasource:
     url: ${DB_URL:jdbc:postgresql://localhost:5432/meta_base}
@@ -37,6 +41,26 @@ spring:
     properties:
       hibernate:
         default_schema: public
+  
+  kafka:
+    bootstrap-servers: kafka1:9093,kafka2:9093
+    ssl:
+      bundle: kafka-client
+
+    consumer:
+      group-id: audit-consumer-group
+      auto-offset-reset: earliest
+      enable-auto-commit: false
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+
+    listener:
+      ack-mode: manual_immediate
+
+    properties:
+      security.protocol: SSL
+      # при необходимости:
+      # ssl.endpoint.identification.algorithm: https
 
   # flyway:
   #   schemas: public
@@ -66,6 +90,17 @@ clean-database-logs:
   task-cleaner-schedule: 0 0 1 * * ?
   # delete logs from db that older than X days
   clean-period: 1080
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: always
 
 logging:
   cef:
