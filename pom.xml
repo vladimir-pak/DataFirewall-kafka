@@ -62,11 +62,11 @@
         </dependency> -->
 
 		<!-- Flyway -->
-		<!-- <dependency>
+		<dependency>
 			<groupId>org.flywaydb</groupId>
 			<artifactId>flyway-core</artifactId>
 			<version>9.16.0</version>
-		</dependency> -->
+		</dependency>
 
 		<!-- Postgres DB -->
 		<dependency>
@@ -86,6 +86,11 @@
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-compress</artifactId>
 			<version>1.26.1</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
 		</dependency>
 
 		<dependency>

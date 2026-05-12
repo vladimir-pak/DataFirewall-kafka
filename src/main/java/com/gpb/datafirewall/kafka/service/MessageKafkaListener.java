@@ -1,5 +1,8 @@
 package com.gpb.datafirewall.kafka.service;
 
+import java.time.OffsetDateTime;
+import java.util.List;
+
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
@@ -25,17 +28,39 @@ public class MessageKafkaListener {
     public void listen(ConsumerRecord<String, String> record, Acknowledgment acknowledgment) throws Exception {
         KafkaMessagePayload payload = objectMapper.readValue(record.value(), KafkaMessagePayload.class);
 
-        MessageDto dto = new MessageDto(
-                payload.userLogin(),
-                payload.actionType(),
-                payload.actionDttm(),
+        MessageDto query = new MessageDto(
+                payload.eventId(),
+                "QUERY",
+                OffsetDateTime.parse(payload.actionDttm()),
                 record.timestamp(),
                 String.valueOf(record.partition()),
                 record.offset(),
-                payload.dataJson()
+                payload.requestJson()
         );
 
-        messageService.save(dto);
+        MessageDto answer = new MessageDto(
+                payload.eventId(),
+                "ANSWER",
+                OffsetDateTime.parse(payload.actionDttm()),
+                record.timestamp(),
+                String.valueOf(record.partition()),
+                record.offset(),
+                payload.shortAnswerJson()
+        );
+
+        MessageDto answerDetail = new MessageDto(
+                payload.eventId(),
+                "ANSWER_DETAIL",
+                OffsetDateTime.parse(payload.actionDttm()),
+                record.timestamp(),
+                String.valueOf(record.partition()),
+                record.offset(),
+                payload.detailAnswerJson()
+        );
+
+        List<MessageDto> rows = List.of(query, answer, answerDetail);
+
+        messageService.saveAll(rows);
         acknowledgment.acknowledge();
     }
 }

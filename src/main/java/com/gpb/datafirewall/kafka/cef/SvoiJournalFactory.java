@@ -27,7 +27,7 @@ public class SvoiJournalFactory {
     private String deviceProduct;
     private String deviceVersion;
     
-    @Value("$server.port")
+    @Value("${server.port:9200}")
     private Integer localPort;
     private String localHostName;
     private Long journalLineNumber = 0L;

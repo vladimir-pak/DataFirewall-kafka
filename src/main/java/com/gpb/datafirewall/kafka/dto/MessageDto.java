@@ -5,7 +5,7 @@ import java.time.OffsetDateTime;
 import com.fasterxml.jackson.databind.JsonNode;
 
 public record MessageDto(
-        String userLogin,
+        String eventId,
         String actionType,
         OffsetDateTime actionDttm,
         Long kafkaTimestamp,
