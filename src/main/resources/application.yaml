@@ -14,6 +14,12 @@
 app:
   kafka:
     topic: user-actions
+  journal:
+    schema: df_meta
+    table: datafirewall_journal
+    partition-cron: "0 0 0 * * *"
+    create-days-ahead: 3
+    cleanup-period: 360
 
 spring:
   application:
