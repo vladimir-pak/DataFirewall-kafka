@@ -1,5 +1,8 @@
 package com.gpb.datafirewall.kafka.mapper;
 
+import java.time.OffsetDateTime;
+import java.util.List;
+
 import org.springframework.stereotype.Component;
 
 import com.gpb.datafirewall.kafka.dto.MessageDto;
@@ -12,16 +15,21 @@ import lombok.RequiredArgsConstructor;
 public class MessageMapper {
 
     public MessageEntity toEntity(MessageDto dto) {
-        MessageEntity entity = new MessageEntity();
+        return new MessageEntity(
+                dto.eventId(),
+                dto.actionType(),
+                dto.actionDttm(),
+                dto.kafkaTimestamp(),
+                dto.kafkaPartition(),
+                dto.kafkaOffset(),
+                dto.dataJson(),
+                OffsetDateTime.now()
+        );
+    }
 
-        entity.setEventId(dto.eventId());
-        entity.setActionType(dto.actionType());
-        entity.setActionDttm(dto.actionDttm());
-        entity.setKafkaTimestamp(dto.kafkaTimestamp());
-        entity.setKafkaPartition(dto.kafkaPartition());
-        entity.setKafkaOffset(dto.kafkaOffset());
-        entity.setDataJson(dto.dataJson());
-
-        return entity;
+    public List<MessageEntity> toEntities(List<MessageDto> messages) {
+        return messages.stream()
+                .map(this::toEntity)
+                .toList();
     }
 }

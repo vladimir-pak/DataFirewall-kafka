@@ -2,7 +2,6 @@ package com.gpb.datafirewall.kafka.service;
 
 import java.util.List;
 
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import com.gpb.datafirewall.kafka.dto.MessageDto;
@@ -23,23 +22,17 @@ public class MessageService {
     private final MessageMapper mapper;
 
     @Transactional
-    public void save(MessageDto dto) {
-        MessageEntity entity = mapper.toEntity(dto);
-
-        try {
-            repository.save(entity);
-        } catch (DataIntegrityViolationException e) {
-            // Сообщение уже было обработано ранее — считаем операцию идемпотентной.
-            // При желании можно дополнительно проверить constraint name.
+    public void saveAll(List<MessageDto> messages) {
+        if (messages == null || messages.isEmpty()) {
+            return;
         }
+
+        List<MessageEntity> entities = mapper.toEntities(messages);
+        repository.saveAll(entities);
     }
 
     @Transactional
-    public void saveAll(List<MessageDto> messages) {
-        List<MessageEntity> entities = messages.stream()
-                .map(mapper::toEntity)
-                .toList();
-
-        repository.saveAllAndFlush(entities);
+    public void save(MessageDto message) {
+        saveAll(List.of(message));
     }
 }
