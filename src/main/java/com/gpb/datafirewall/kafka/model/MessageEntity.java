@@ -32,9 +32,6 @@ public class MessageEntity {
     @Column(name = "event_id")
     private String eventId;
 
-    @Column(name = "user_login", nullable = false)
-    private String userLogin;
-
     @Column(name = "action_type", nullable = false)
     private String actionType;
 
