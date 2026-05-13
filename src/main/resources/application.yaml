@@ -14,6 +14,11 @@
 app:
   kafka:
     topic: user-actions
+    admin:
+      fail-fast: true
+    properties:
+      request.timeout.ms: 10000
+      default.api.timeout.ms: 15000
   journal:
     schema: df_meta
     table: datafirewall_journal

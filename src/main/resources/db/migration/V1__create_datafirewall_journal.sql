@@ -1,5 +1,3 @@
-create schema if not exists df_meta;
-
 create table if not exists df_meta.datafirewall_journal (
     event_id varchar(255),
     action_type varchar(255) not null,

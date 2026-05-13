@@ -8,11 +8,14 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Component;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gpb.datafirewall.kafka.dto.KafkaMessagePayload;
 import com.gpb.datafirewall.kafka.dto.MessageDto;
 
 import lombok.RequiredArgsConstructor;
+
+import static com.gpb.datafirewall.kafka.utils.JsonDateTimeNormalizer.normalizeDfwDateFields;
 
 @Component
 @RequiredArgsConstructor
@@ -27,6 +30,9 @@ public class MessageKafkaListener {
     )
     public void listen(ConsumerRecord<String, String> record, Acknowledgment acknowledgment) throws Exception {
         KafkaMessagePayload payload = objectMapper.readValue(record.value(), KafkaMessagePayload.class);
+
+        JsonNode normalizedShortAnswerJson = normalizeDfwDateFields(payload.shortAnswerJson());
+        JsonNode normalizedDetailAnswerJson = normalizeDfwDateFields(payload.detailAnswerJson());
 
         MessageDto query = new MessageDto(
                 payload.eventId(),
@@ -45,7 +51,7 @@ public class MessageKafkaListener {
                 record.timestamp(),
                 String.valueOf(record.partition()),
                 record.offset(),
-                payload.shortAnswerJson()
+                normalizedShortAnswerJson
         );
 
         MessageDto answerDetail = new MessageDto(
@@ -55,7 +61,7 @@ public class MessageKafkaListener {
                 record.timestamp(),
                 String.valueOf(record.partition()),
                 record.offset(),
-                payload.detailAnswerJson()
+                normalizedDetailAnswerJson
         );
 
         List<MessageDto> rows = List.of(query, answer, answerDetail);
