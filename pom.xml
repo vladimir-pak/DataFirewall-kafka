@@ -9,9 +9,9 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.gpb.datafirewall</groupId>
-	<artifactId>kafka</artifactId>
+	<artifactId>datafirewall-kafka</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>kafka</name>
+	<name>datafirewall-kafka</name>
 	<description>Микросервис для Kafka</description>
 
 	<properties>
