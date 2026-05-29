@@ -1,6 +1,7 @@
 package com.gpb.datafirewall.kafka.cef;
 
 import java.net.NetworkInterface;
+import java.net.URI;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -8,6 +9,7 @@ import java.util.Enumeration;
 import java.util.List;
 
 import org.slf4j.MDC;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.stereotype.Component;
 
 import com.gpb.datafirewall.kafka.cef.enums.SvoiSeverityEnum;
@@ -32,6 +34,7 @@ public class SvoiLogger {
     private final LogRepository logRepository;
     private final SvoiJournalFactory svoiJournalFactory = new SvoiJournalFactory();
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss");
+    private final DataSourceProperties dataSourceProperties;
 
     public void sendInternal(String deviceEventClassID,
                              String name,
@@ -40,6 +43,51 @@ public class SvoiLogger {
 
         SvoiJournal journal = svoiJournalFactory.getJournalSource();
         send(deviceEventClassID, name, message, severity, journal);
+    }
+
+    public void sendKafkaMessage(
+        String message, 
+        String user,
+        String ip,
+        String dns,
+        int port
+    ) {
+        SvoiJournal journal = svoiJournalFactory.getJournalSource();
+        String username = dataSourceProperties.getUsername();
+        journal.setDhost(dns);
+        journal.setDst(null);
+        journal.setDuser(username);
+        journal.setDpt(port);
+        send("kafkaConsumer", "Consumer connected to Kafka", message, SvoiSeverityEnum.ONE, journal);
+    }
+
+    public void sendDbConnection(String message) {
+        String url = dataSourceProperties.getUrl();
+        
+        String host;
+        int port;
+        if (url == null || url.isBlank()) {
+            host = "UNDEFINED";
+            port = -1;
+        } else {
+            String normalizedUrl = url;
+            if (normalizedUrl.startsWith("jdbc:")) {
+                normalizedUrl = normalizedUrl.substring("jdbc:".length());
+            }
+            
+            URI uri = URI.create(normalizedUrl);
+
+            host = uri.getHost();
+            port = uri.getPort();
+        }
+
+        String username = dataSourceProperties.getUsername();
+
+        SvoiJournal journal = svoiJournalFactory.getJournalSource();
+        journal.setDhost(host);
+        journal.setDuser(username);
+        journal.setDpt(port);
+        send("dbConnection", "Database Connection", message, SvoiSeverityEnum.ONE, journal);
     }
 
     private void send(String deviceEventClassID,

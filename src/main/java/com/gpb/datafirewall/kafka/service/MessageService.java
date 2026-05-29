@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import com.gpb.datafirewall.kafka.cef.SvoiLogger;
 import com.gpb.datafirewall.kafka.dto.MessageDto;
 import com.gpb.datafirewall.kafka.mapper.MessageMapper;
 import com.gpb.datafirewall.kafka.model.MessageEntity;
@@ -18,6 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class MessageService {
 
+    private final SvoiLogger svoiCustomLogger;
     private final MessageRepository repository;
     private final MessageMapper mapper;
 
@@ -29,6 +31,8 @@ public class MessageService {
 
         List<MessageEntity> entities = mapper.toEntities(messages);
         repository.saveAll(entities);
+        String message = "Insert audit log with ID: " + entities.get(0).eventId();
+        svoiCustomLogger.sendDbConnection(message);
     }
 
     @Transactional
