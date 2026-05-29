@@ -83,7 +83,7 @@ public class KafkaStartupHealthCheck {
             return colonIndex;
         }
 
-        return Integer.parseInt(hostname.substring(1, colonIndex));
+        return Integer.parseInt(hostname.substring(colonIndex));
     }
 
     private String resolveUsername(Map<String, Object> props) {
