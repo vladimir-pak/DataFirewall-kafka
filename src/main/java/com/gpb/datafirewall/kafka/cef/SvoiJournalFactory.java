@@ -27,8 +27,10 @@ public class SvoiJournalFactory {
     private String deviceProduct;
     private String deviceVersion;
     
-    @Value("${server.port:9200}")
+    @Value("${server.port}")
     private Integer localPort;
+    @Value("${spring.application.projectName:mkad}")
+    private String projectName;
     private String localHostName;
     private Long journalLineNumber = 0L;
 
@@ -38,6 +40,7 @@ public class SvoiJournalFactory {
     public SvoiJournal getJournalSource() {
         SvoiJournal svoiJournal = this.getBaseJournal();
         HostInfo host = getLocalHostInfo();
+        svoiJournal.setProjectName(projectName);
         svoiJournal.setDst(host.ip);
         svoiJournal.setDvchost(host.name);
         svoiJournal.setDpt(localPort);
