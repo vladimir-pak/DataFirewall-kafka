@@ -5,8 +5,6 @@ import lombok.Data;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-import org.springframework.beans.factory.annotation.Value;
-
 import com.gpb.datafirewall.kafka.cef.enums.SvoiOutcomeEnum;
 import com.gpb.datafirewall.kafka.cef.enums.SvoiSeverityEnum;
 
