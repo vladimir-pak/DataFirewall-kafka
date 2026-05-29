@@ -1,15 +1,13 @@
 package com.gpb.datafirewall.kafka.cef;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.event.ApplicationStartedEvent;
 import org.springframework.boot.info.BuildProperties;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.annotation.Order;
+import org.springframework.stereotype.Component;
 
 import com.gpb.datafirewall.kafka.cef.model.SvoiJournal;
 
@@ -18,10 +16,8 @@ import java.net.UnknownHostException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-@Setter
-@Getter
-@AllArgsConstructor
-@NoArgsConstructor
+@Component
+@RequiredArgsConstructor
 public class SvoiJournalFactory {
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss");
     private String deviceProduct;
@@ -29,7 +25,7 @@ public class SvoiJournalFactory {
     
     @Value("${server.port}")
     private Integer localPort;
-    @Value("${spring.application.projectName:mkad}")
+    @Value("${spring.application.project-name:mkad}")
     private String projectName;
     private String localHostName;
     private Long journalLineNumber = 0L;
@@ -40,7 +36,7 @@ public class SvoiJournalFactory {
     public SvoiJournal getJournalSource() {
         SvoiJournal svoiJournal = this.getBaseJournal();
         HostInfo host = getLocalHostInfo();
-        svoiJournal.setProjectName(projectName);
+        
         svoiJournal.setDst(host.ip);
         svoiJournal.setDvchost(host.name);
         svoiJournal.setDpt(localPort);
@@ -55,6 +51,7 @@ public class SvoiJournalFactory {
     private SvoiJournal getBaseJournal() {
         LocalDateTime now = LocalDateTime.now();
         SvoiJournal svoiJournal = new SvoiJournal(this.nextLineNumber(), DATE_FORMATTER);
+        svoiJournal.setProjectName(projectName);
         svoiJournal.setDeviceProduct(this.buildProperties != null ? this.buildProperties.getName() : this.deviceProduct);
         svoiJournal.setDeviceVersion(this.buildProperties != null ? this.buildProperties.getVersion() : this.deviceVersion);
         svoiJournal.setTime(now);
@@ -91,4 +88,3 @@ public class SvoiJournalFactory {
         }
     }
 }
-

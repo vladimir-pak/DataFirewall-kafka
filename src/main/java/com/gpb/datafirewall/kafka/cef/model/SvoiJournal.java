@@ -12,7 +12,6 @@ import com.gpb.datafirewall.kafka.cef.enums.SvoiSeverityEnum;
 
 @Data
 public class SvoiJournal {
-    @Value("${spring.application.projectName}")
     private String projectName;
     private DateTimeFormatter sdf;
     private String time;
@@ -108,7 +107,7 @@ public class SvoiJournal {
         } else {
             String var = this.deviceProduct;
             return String.format("CEF:0|%s|%s|%s|%s|%s|%d|%s", 
-                    projectName,
+                    this.projectName,
                     var,
                     this.deviceVersion,
                     this.deviceEventClassID,
