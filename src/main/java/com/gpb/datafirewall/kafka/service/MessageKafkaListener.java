@@ -1,6 +1,8 @@
 package com.gpb.datafirewall.kafka.service;
 
+import java.time.Instant;
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -23,9 +25,10 @@ public class MessageKafkaListener {
 
     private final ObjectMapper objectMapper;
     private final MessageService messageService;
+    private final AuditService auditService;
 
     @KafkaListener(
-            topics = "${app.kafka.topic:user-actions}",
+            topics = "${app.kafka.topic:datafirewall.logs}",
             containerFactory = "kafkaListenerContainerFactory"
     )
     public void listen(ConsumerRecord<String, String> record, Acknowledgment acknowledgment) throws Exception {
@@ -67,6 +70,19 @@ public class MessageKafkaListener {
         List<MessageDto> rows = List.of(query, answer, answerDetail);
 
         messageService.saveAll(rows);
+        acknowledgment.acknowledge();
+    }
+
+    @KafkaListener(
+            topics = "${app.kafka.audit-topic:datafirewall.audit}",
+            containerFactory = "kafkaListenerContainerFactory"
+    )
+    public void listenPlainMessages(ConsumerRecord<String, String> record,
+                                    Acknowledgment acknowledgment) {
+        OffsetDateTime created = Instant.ofEpochMilli(record.timestamp())
+                .atOffset(ZoneOffset.UTC);
+        auditService.save(record.value(), created);
+
         acknowledgment.acknowledge();
     }
 }

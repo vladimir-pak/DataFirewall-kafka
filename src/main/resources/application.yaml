@@ -13,7 +13,8 @@
 
 app:
   kafka:
-    topic: user-actions
+    topic: datafirewall.logs
+    audit-topic: datafirewall.audit
     admin:
       fail-fast: true
     properties:

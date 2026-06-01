@@ -1,6 +1,7 @@
 package com.gpb.datafirewall.kafka.repository;
 
 import java.time.LocalDate;
+import java.time.OffsetDateTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -25,6 +26,9 @@ public class MessageRepository {
 
     @Value("${app.journal.table:datafirewall_journal}")
     private String table;
+
+    @Value("${app.journal.audit-table:dq_audit.datafirewall_log}")
+    private String auditTable;
 
     public void saveAll(List<MessageEntity> entities) {
         String sql = String.format("""
@@ -68,6 +72,28 @@ public class MessageRepository {
 
             ps.setObject(8, entity.createdAt());
         });
+    }
+
+    public void saveAudit(String log, OffsetDateTime created) {
+        String sql = String.format("""
+            insert into %s (
+                created,
+                log
+            )
+            values (?, ?)
+            on conflict (
+                created,
+                log
+            ) do nothing
+        """, auditTable);
+
+        jdbcTemplate.update(
+                sql,
+                ps -> {
+                    ps.setObject(1, created);
+                    ps.setString(2, log);
+                }
+        );
     }
 
     public void createDailyPartitionIfNotExists(LocalDate day) {
