@@ -17,9 +17,8 @@ app:
     audit-topic: datafirewall.audit
     admin:
       fail-fast: true
-    properties:
-      request.timeout.ms: 10000
-      default.api.timeout.ms: 15000
+    topic-healthcheck:
+      enabled: true
   journal:
     schema: df_meta
     table: datafirewall_journal
@@ -71,6 +70,8 @@ spring:
 
     properties:
       security.protocol: SSL
+      request.timeout.ms: 10000
+      default.api.timeout.ms: 15000
       # при необходимости:
       # ssl.endpoint.identification.algorithm: https
 
