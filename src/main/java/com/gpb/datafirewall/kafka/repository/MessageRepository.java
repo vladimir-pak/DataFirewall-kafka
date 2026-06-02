@@ -81,10 +81,6 @@ public class MessageRepository {
                 log
             )
             values (?, ?)
-            on conflict (
-                created,
-                log
-            ) do nothing
         """, auditTable);
 
         jdbcTemplate.update(
