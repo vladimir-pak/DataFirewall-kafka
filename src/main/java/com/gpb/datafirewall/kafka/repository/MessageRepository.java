@@ -74,13 +74,14 @@ public class MessageRepository {
         });
     }
 
-    public void saveAudit(String log, OffsetDateTime created) {
+    public void saveAudit(String log, OffsetDateTime created, String type) {
         String sql = String.format("""
             insert into %s (
                 created,
-                log
+                log,
+                type
             )
-            values (?, ?)
+            values (?, ?, ?)
         """, auditTable);
 
         jdbcTemplate.update(
@@ -88,6 +89,7 @@ public class MessageRepository {
                 ps -> {
                     ps.setObject(1, created);
                     ps.setString(2, log);
+                    ps.setString(3, type);
                 }
         );
     }
