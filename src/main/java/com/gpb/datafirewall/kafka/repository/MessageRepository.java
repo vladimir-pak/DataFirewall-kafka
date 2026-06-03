@@ -43,12 +43,6 @@ public class MessageRepository {
                 created_at
             )
             values (?, ?, ?, ?, ?, ?, ?::jsonb, ?)
-            on conflict (
-                kafka_partition,
-                kafka_offset,
-                action_type,
-                action_dttm
-            ) do nothing
         """, schema, table);
 
         jdbcTemplate.batchUpdate(sql, entities, 500, (ps, entity) -> {
