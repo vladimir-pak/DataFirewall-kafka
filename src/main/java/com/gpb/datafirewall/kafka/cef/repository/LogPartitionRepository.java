@@ -39,15 +39,15 @@ public class LogPartitionRepository {
         this.svoiCustomLogger = svoiCustomLogger;
     }
 
-    public void createTodayPartition() {
+    public void createTodayPartition(String tableName) {
         if (!logsDatabaseProperties.isEnabled()) {
             return;
         }
 
-        String table = logsDatabaseProperties.getTable().trim();
+        // String table = logsDatabaseProperties.getTable().trim();
         LocalDate currentDate = LocalDate.now();
         String partitionName = String.format("%s_%s",
-                table,
+                tableName,
                 currentDate.format(DateTimeFormatter.ofPattern("yyyy_MM_dd")));
 
         String sql = String.format("""
@@ -56,7 +56,7 @@ public class LogPartitionRepository {
                         FOR VALUES FROM ('%s 00:00:00') TO ('%s 00:00:00')
                         """,
                 partitionName,
-                table,
+                tableName,
                 currentDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")),
                 currentDate.plusDays(1).format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
         );
@@ -64,17 +64,17 @@ public class LogPartitionRepository {
         logsJdbcTemplate.execute(sql);
     }
 
-    public void dropOldPartitions() {
+    public void dropOldPartitions(String tableName) {
         if (!logsDatabaseProperties.isEnabled()) {
             return;
         }
         LocalDate dateToDelete = LocalDate.now().minusDays(cleanDatabaseLogs.getCleanPeriod());
 
         String fullTableName = logsDatabaseProperties.getTable().trim();
-        String table = fullTableName;
+        // String table = fullTableName;
         String schema = "public";
         if (fullTableName.contains(".")) {
-            table = fullTableName.split("\\.")[1];
+            tableName = fullTableName.split("\\.")[1];
             schema = fullTableName.split("\\.")[0];
         }
 
@@ -87,12 +87,12 @@ public class LogPartitionRepository {
                     JOIN pg_namespace nmsp_parent ON nmsp_parent.oid = parent.relnamespace
                     JOIN pg_namespace nmsp_child ON nmsp_child.oid = child.relnamespace
                 WHERE parent.relname = '%s'
-                """, table);
+                """, tableName);
         
         List<String> partitions = logsJdbcTemplate.queryForList(sqlGetPartitions, String.class);
 
         for (String partName : partitions) {
-            String dateStr = partName.replace(table + "_", "");
+            String dateStr = partName.replace(tableName + "_", "");
             String formattedDate = dateStr.replace("_", "-");
             
             LocalDate partDate = LocalDate.parse(formattedDate);

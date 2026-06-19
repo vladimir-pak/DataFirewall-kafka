@@ -4,6 +4,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -15,6 +16,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import com.gpb.datafirewall.kafka.cef.SvoiLogger;
 import com.gpb.datafirewall.kafka.cef.enums.SvoiSeverityEnum;
 import com.gpb.datafirewall.kafka.cef.model.Log;
+import com.gpb.datafirewall.kafka.cef.properties.LogsDatabaseProperties;
 import com.gpb.datafirewall.kafka.cef.repository.LogPartitionRepository;
 import com.gpb.datafirewall.kafka.cef.repository.LogRepository;
 import com.gpb.datafirewall.kafka.utils.Utils;
@@ -37,9 +39,16 @@ public class KafkaApplication {
 	private final ConfigurableEnvironment configurableEnvironment;
 	private static ConfigurableApplicationContext applicationContext;
 
+	private final LogsDatabaseProperties logsDatabaseProperties;
+
+	@Value("${app.journal.audit-table:dq_audit.datafirewall_log}")
+    private String auditTable;
+
 	@PostConstruct
 	public void startupApplication() {
-		logPartitionRepository.createTodayPartition();
+		String tableName = logsDatabaseProperties.getTable().trim();
+		logPartitionRepository.createTodayPartition(tableName);
+		logPartitionRepository.createTodayPartition(auditTable);
 		svoiCustomLogger.sendInternal(
 				"startService", 
 				"Start Service", 

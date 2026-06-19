@@ -22,6 +22,7 @@ app:
   journal:
     schema: df_meta
     table: datafirewall_journal
+    audit-table: dq_audit.datafirewall_flink_log
     partition-cron: "0 0 0 * * *"
     create-days-ahead: 3
     cleanup-period: 360
